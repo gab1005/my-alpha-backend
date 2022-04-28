@@ -43,7 +43,7 @@ function getCustomers(req, res) {
 
 //POST/INSERT
 async function insertCustomer(req, res) {
-    const { name, email, password} = req.body;
+    const { name, email, password, fullName} = req.body;
     bcrypt.hash(password, saltRounds, async (error, hash) => {
         if (error) {
             console.log(error)
@@ -51,8 +51,8 @@ async function insertCustomer(req, res) {
 
         console.log(hash)
         const query = {
-            text: 'INSERT INTO public.users(username, email, password, birthdate) VALUES($1, $2, $3, $4)',
-            values: [name, email, hash, 'niver']
+            text: 'INSERT INTO public.users(username, email, password, birthdate, fullname) VALUES($1, $2, $3, $4, $5)',
+            values: [name, email, hash, 'niver', fullName]
         };
         try {
             await pool.query(query);
@@ -114,40 +114,6 @@ async function deleteCustomer(req, res) {
     }
 }
 
-// //POST CARTAO
-// app.post('/postCartao', async function insertCartao(req, res) {
-//     const { name, number, validade, cds, userId, createAt } = req.body;
-//     const query = {
-//         text: 'INSERT INTO public.cartao(nome, numero, validade, cds, id_usuario, createdAt) VALUES($1, $2, $3, $4, $5, $6)',
-//         values: [name, parseInt(number), validade, parseInt(cds), parseInt(userId), createAt]
-//     };
-//     try {
-//         await pool.query(query);
-//         res.status(200).send('Cartao inserted');
-//     } catch (err) {
-//         console.log(err);
-//         res.status(400).send(err);
-//     }
-// })
-
-// //GET/SELECT CARTAO
-// app.get('/getCartao', function (req, res) {
-//     pool.connect(function (err, client, done) {
-//         if (err) {
-//             console.log("Can not connect to the DB" + err);
-//         }
-//         client.query(`SELECT * FROM public.cartao WHERE public.cartao.id_usuario IN (${req.query.userId})`, function (err, result) {
-//             done();
-//             if (err) {
-//                 console.log(err);
-//                 res.status(400).send(err);
-//             }
-//             let obj = result.rows;
-//             res.status(200).send(obj);
-//         })
-//     })
-// })
-
 // async function connection(query, params = null) {
 //     const client = initClient()
 //     client.connect()
@@ -198,7 +164,7 @@ const login = async (req, res) => {
     const email = req.body.email
     const password = req.body.password
 
-    const query = 'SELECT * FROM users WHERE email = $1'
+    const query = 'SELECT * FROM users WHERE email = $1 OR username = $1'
 
     pool.connect(function (err, client, done) {
         if (err) {
