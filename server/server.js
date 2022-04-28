@@ -36,5 +36,6 @@ server.put('/putForms', verifyJWT, database.updateCustomer)
 
 server.put('/deleteLogicalForms', verifyJWT, database.deleteCustomer)
 
+server.get('/logout', database.logout)
 
 server.listen(PORT, () => console.log(`Server backend running on port ${PORT}`))

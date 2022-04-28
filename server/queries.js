@@ -240,37 +240,19 @@ const login = async (req, res) => {
             // res.status(200).send(obj);
         })
     })
-
-    // if (json.content.length > 0) {
-    //     bcrypt.compare(password, json.content[0].password, (error, itsTheSame) => {
-    //         if (error) {
-    //             console.log(error)
-    //         }
-
-    //         json.content[0].isAuthenticated = itsTheSame
-    //         if (itsTheSame) {
-    //             const id = json.content[0].user_id
-    //             const token = jwt.sign({ id }, 'secret', {
-    //                 expiresIn: 300
-    //             })
-    //             console.log({ authorized: true, token: token, result: json })
-
-    //             res.cookie('access_token', token, { httpOnly: true }).json({ authorized: true, token: token, result: json })
-    //         } else {
-    //             res.json({ auth: false, message: "Wrong password/username combination!" })
-    //         }
-    //     })
-    // } else {
-    //     res.json({ auth: false, message: "User doesn't exist!" })
-    // }
-
 }
+
+    const logout = (req, res) => {
+        res.cookie('access_token', '', {expiresIn: 1}).json({message: "You have been logged out!"})
+        // res.redirect('/') // usar isso pra redirecionar para pagina de login
+    }
 
 module.exports = {
     getCustomers,
     insertCustomer,
     updateCustomer,
     deleteCustomer,
+    logout,
     register,
     login
 }
