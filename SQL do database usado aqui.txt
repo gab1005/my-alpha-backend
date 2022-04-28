@@ -1,0 +1,13 @@
+CREATE TABLE public.users (
+	"id" serial NOT NULL,
+	"username" varchar(50) NOT NULL,
+	"password" varchar(100) NOT NULL,
+	"email" varchar(100) NOT NULL UNIQUE,
+	"birthdate" varchar(120) NOT NULL ,
+	"createdat" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	"deletedat" TIMESTAMP,
+	"admin" BOOLEAN NOT NULL DEFAULT 'FALSE',
+	CONSTRAINT "users_pk" PRIMARY KEY ("id")
+) WITH (
+  OIDS=FALSE
+);
