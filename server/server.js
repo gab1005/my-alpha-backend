@@ -8,7 +8,7 @@ const verifyJWT = require('./verify')
 
 server.use(express.json())
 server.use(cors({
-    origin: ['http://localhost:3001'],
+    origin: ['http://localhost:3000'],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
     //lembre de colocar credentials: true no fetch também quando for configurar as requisições do front
