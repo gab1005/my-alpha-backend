@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken')
 
 const config = {
     user: 'postgres',
-    database: 'react-winx',
+    database: 'db-winx',
     password: 'senha',
     port: 5432
 };
@@ -29,7 +29,7 @@ function getCustomers(req, res) {
         if (err) {
             console.log("Can not connect to the DB" + err);
         }
-        client.query('SELECT * FROM public.forms WHERE id = $1 AND deletat IS NULL', [req.user_id], function (err, result) {
+        client.query('SELECT * FROM public.users WHERE id = $1 AND deletedAt IS NULL', [req.user_id], function (err, result) {
             done();
             if (err) {
                 console.log(err);
@@ -43,7 +43,7 @@ function getCustomers(req, res) {
 
 //POST/INSERT
 async function insertCustomer(req, res) {
-    const { name, email, phone, password, createAt } = req.body;
+    const { name, email, password} = req.body;
     bcrypt.hash(password, saltRounds, async (error, hash) => {
         if (error) {
             console.log(error)
@@ -51,8 +51,8 @@ async function insertCustomer(req, res) {
 
         console.log(hash)
         const query = {
-            text: 'INSERT INTO public.forms(name, email, creatat, password) VALUES($1, $2, $3, $4)',
-            values: [name, email, createAt, hash]
+            text: 'INSERT INTO public.users(username, email, password, birthdate) VALUES($1, $2, $3, $4)',
+            values: [name, email, hash, 'niver']
         };
         try {
             await pool.query(query);
@@ -69,7 +69,7 @@ async function updateCustomer(req, res) {
     const {name, email} = req.body;
     const id = req.user_id
     const query = {
-        text: 'UPDATE public.forms SET name = $1, email = $2 WHERE id = $3',
+        text: 'UPDATE public.users SET username = $1, email = $2 WHERE id = $3',
         values: [name, email, id]
     };
     try {
@@ -82,10 +82,10 @@ async function updateCustomer(req, res) {
 }
 
 //PHYSSICAL DELETE
-// app.delete('/deleteForms', async function deleteCustomer(req, res) {
+// app.delete('/deleteusers', async function deleteCustomer(req, res) {
 //     const { id } = req.body;
 //     const query = {
-//         text: 'DELETE FROM public.forms WHERE id = $1',
+//         text: 'DELETE FROM public.users WHERE id = $1',
 //         values: [id]
 //     };
 //     try {
@@ -100,11 +100,10 @@ async function updateCustomer(req, res) {
 //LOGICAL DELETE
 async function deleteCustomer(req, res) {
     console.log('delete aqui')
-    const { deleteAt } = req.body;
     const id = req.user_id
     const query = {
-        text: 'UPDATE public.forms SET deletat = $2 WHERE id = $1',
-        values: [id, deleteAt]
+        text: 'UPDATE public.users SET deletedAt = CURRENT_TIMESTAMP WHERE id = $1',
+        values: [id]
     };
     try {
         await pool.query(query);
@@ -119,7 +118,7 @@ async function deleteCustomer(req, res) {
 // app.post('/postCartao', async function insertCartao(req, res) {
 //     const { name, number, validade, cds, userId, createAt } = req.body;
 //     const query = {
-//         text: 'INSERT INTO public.cartao(nome, numero, validade, cds, id_usuario, creatat) VALUES($1, $2, $3, $4, $5, $6)',
+//         text: 'INSERT INTO public.cartao(nome, numero, validade, cds, id_usuario, createdAt) VALUES($1, $2, $3, $4, $5, $6)',
 //         values: [name, parseInt(number), validade, parseInt(cds), parseInt(userId), createAt]
 //     };
 //     try {
@@ -199,7 +198,7 @@ const login = async (req, res) => {
     const email = req.body.email
     const password = req.body.password
 
-    const query = 'SELECT * FROM forms WHERE email = $1'
+    const query = 'SELECT * FROM users WHERE email = $1'
 
     pool.connect(function (err, client, done) {
         if (err) {
@@ -213,6 +212,8 @@ const login = async (req, res) => {
             }
             let obj = result.rows;
             console.log(obj)
+            
+            //Check if there is any results (array greater than 0)
             if (obj.length > 0) {
                 bcrypt.compare(password, obj[0].password, (error, itsTheSame) => {
                     if (error) {
@@ -236,8 +237,6 @@ const login = async (req, res) => {
             } else {
                 res.json({ auth: false, message: "User doesn't exist!" })
             }
-
-            // res.status(200).send(obj);
         })
     })
 }
