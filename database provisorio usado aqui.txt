@@ -1,0 +1,9 @@
+CREATE TABLE forms (
+	id serial PRIMARY KEY,
+	name VARCHAR ( 50 ) UNIQUE NOT NULL,
+	password VARCHAR ( 100 ) NOT NULL,
+	email VARCHAR ( 255 ) UNIQUE NOT NULL,
+	phone INT,
+	creatat VARCHAR ( 40 ),
+	deletat VARCHAR (40)
+);
