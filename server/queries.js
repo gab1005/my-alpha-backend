@@ -1,15 +1,8 @@
-const { Pool } = require('pg')
 const bcrypt = require('bcrypt')
 const saltRounds = 10
 const jwt = require('jsonwebtoken')
 
-const config = {
-    user: 'postgres',
-    database: 'db-winx',
-    password: 'senha',
-    port: 5432
-};
-const pool = new Pool(config);
+const pool = require('./database-configs')
 
 // app.get('/', function (req, res) {
 //   res.sendFile(path.join(__dirname, 'build', 'index.html'));
@@ -43,7 +36,7 @@ function getCustomers(req, res) {
 
 //POST/INSERT
 async function insertCustomer(req, res) {
-    const { name, email, password, fullName} = req.body;
+    const { name, email, birthdate, password, fullName} = req.body;
     bcrypt.hash(password, saltRounds, async (error, hash) => {
         if (error) {
             console.log(error)
@@ -52,7 +45,7 @@ async function insertCustomer(req, res) {
         console.log(hash)
         const query = {
             text: 'INSERT INTO public.users(username, email, password, birthdate, fullname) VALUES($1, $2, $3, $4, $5)',
-            values: [name, email, hash, 'niver', fullName]
+            values: [name, email, hash, birthdate, fullName]
         };
         try {
             await pool.query(query);
@@ -161,7 +154,7 @@ const register = async (req, res) => {
 }
 
 const login = async (req, res) => {
-    const email = req.body.email
+    const identifier = req.body.identifier
     const password = req.body.password
 
     const query = 'SELECT * FROM users WHERE email = $1 OR username = $1'
@@ -170,7 +163,7 @@ const login = async (req, res) => {
         if (err) {
             console.log("Can not connect to the DB" + err);
         }
-        client.query(query, [email], function (err, result) {
+        client.query(query, [identifier], function (err, result) {
             done();
             if (err) {
                 console.log(err);
