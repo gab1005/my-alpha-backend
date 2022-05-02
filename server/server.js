@@ -19,6 +19,8 @@ server.get('/', (req, res) => {
     res.send("Funcionando!")
 })
 
+server.use('/static', express.static('public'))
+
 server.get('/isUserAuth', verifyJWT, (req, res) => {
     console.log(req.user_id)
     res.send("Você está autorizado!")

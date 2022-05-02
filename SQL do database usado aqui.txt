@@ -8,6 +8,7 @@ CREATE TABLE public.users (
 	"createdat" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	"deletedat" TIMESTAMP,
 	"admin" BOOLEAN NOT NULL DEFAULT 'FALSE',
+	"profile_picture" varchar(150) UNIQUE,
 	CONSTRAINT "users_pk" PRIMARY KEY ("id")
 ) WITH (
   OIDS=FALSE
