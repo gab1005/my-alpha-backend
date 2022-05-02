@@ -12,3 +12,34 @@ CREATE TABLE public.users (
 ) WITH (
   OIDS=FALSE
 );
+
+CREATE TABLE public.users_books (
+	"id" serial NOT NULL,
+	"user_id" bigint NOT NULL,
+	"book_id" bigint NOT NULL,
+	"status" varchar(255) NOT NULL,
+	"score" int NOT NULL,
+	"last_update" TIMESTAMP NOT NULL,
+	"createdat" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	"deletedat" TIMESTAMP NOT NULL,
+	CONSTRAINT "users_books_pk" PRIMARY KEY ("id")
+) WITH (
+  OIDS=FALSE
+);
+
+CREATE TABLE public.books (
+	"id" serial NOT NULL,
+	"title" varchar(255) NOT NULL,
+	"author" varchar(255) NOT NULL,
+	"publisher" varchar(255) NOT NULL,
+	"gender" varchar(255) NOT NULL,
+	"pub_year" bigint NOT NULL,
+	"createdat" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	"deletedat" TIMESTAMP,
+	CONSTRAINT "books_pk" PRIMARY KEY ("id")
+) WITH (
+  OIDS=FALSE
+);
+
+ALTER TABLE "users_books" ADD CONSTRAINT "users_books_fk0" FOREIGN KEY ("user_id") REFERENCES "users"("id");
+ALTER TABLE "users_books" ADD CONSTRAINT "users_books_fk1" FOREIGN KEY ("book_id") REFERENCES "books"("id");
