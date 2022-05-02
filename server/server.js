@@ -34,10 +34,30 @@ server.get('/getForms', verifyJWT, database.getCustomers)
 
 server.post('/postForms', database.insertCustomer) // To usando no lugar do register
 
+server.get('/getBooks', database.getBooks) // To usando no lugar do register
+
 server.put('/putForms', verifyJWT, database.updateCustomer)
 
 server.put('/deleteLogicalForms', verifyJWT, database.deleteCustomer)
 
 server.get('/logout', database.logout)
+
+server.get('/getBooks', database.getBooks)
+
+server.put('/putBooks', verifyJWT, database.updateBook)
+
+server.post('/postBooks', database.insertBook)
+
+server.put('/deleteLogicalBooks', database.deleteBook)
+
+server.post('/upload', async (req, res) => {
+    const { name, data} = req.files.pic;
+    database.upload(name, data, res)
+})
+
+server.get('/getImage/:id', async (req, res) => {
+    const { id } = req.params;
+    database.getImage(id, res)
+})
 
 server.listen(PORT, () => console.log(`Server backend running on port ${PORT}`))

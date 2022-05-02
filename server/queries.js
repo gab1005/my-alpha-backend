@@ -36,7 +36,7 @@ function getCustomers(req, res) {
 
 //POST/INSERT
 async function insertCustomer(req, res) {
-    const { name, email, birthdate, password, fullName} = req.body;
+    const { name, email, birthdate, password, fullName } = req.body;
     bcrypt.hash(password, saltRounds, async (error, hash) => {
         if (error) {
             console.log(error)
@@ -59,7 +59,7 @@ async function insertCustomer(req, res) {
 
 //PUT/UPDATE
 async function updateCustomer(req, res) {
-    const {name, email} = req.body;
+    const { name, email } = req.body;
     const id = req.user_id
     const query = {
         text: 'UPDATE public.users SET username = $1, email = $2 WHERE id = $3',
@@ -171,7 +171,7 @@ const login = async (req, res) => {
             }
             let obj = result.rows;
             console.log(obj)
-            
+
             //Check if there is any results (array greater than 0)
             if (obj.length > 0) {
                 bcrypt.compare(password, obj[0].password, (error, itsTheSame) => {
@@ -183,7 +183,7 @@ const login = async (req, res) => {
                     if (itsTheSame) {
                         const id = obj[0].id
                         console.log(id)
-                        const token = jwt.sign( { id } , 'secret', {
+                        const token = jwt.sign({ id }, 'secret', {
                             expiresIn: 3000
                         })
                         console.log({ authorized: true, token: token, result: obj[0] })
@@ -200,16 +200,135 @@ const login = async (req, res) => {
     })
 }
 
-    const logout = (req, res) => {
-        res.cookie('access_token', '', {expiresIn: 1}).json({message: "You have been logged out!"})
-        // res.redirect('/') // usar isso pra redirecionar para pagina de login
-    }
+const logout = (req, res) => {
+    res.cookie('access_token', '', { expiresIn: 1 }).json({ message: "You have been logged out!" })
+    // res.redirect('/') // usar isso pra redirecionar para pagina de login
+}
 
+// const getBooks = (req, res) => {
+//     res.json([
+//         {
+//             title: "ldsfkjls",
+//             author: "ldsfkjls",
+//             publisher: "ldsfkjls",
+//             gender: "ldsfkjls",
+//             pub_year: "ldsfkjls"
+//         },
+//         {
+//             title: "odfius",
+//             author: "sdlkfj",
+//             publisher: "sdlfj",
+//             gender: "lfskjd",
+//             pub_year: "kldjfls"
+//         }]
+//     )
+// }
+
+async function updateBook(req, res) {
+    const {id, title, author, publisher, gender, pub_year} = req.body;
+    const query = {
+        text: 'UPDATE public.books SET title = $1, author = $2, publisher = $3, gender = $4, pub_year = $5 WHERE id = $6',
+        values: [title, author, publisher, gender, parseInt(pub_year), id]
+    };
+    try {
+        console.log([title, author, publisher, gender, parseInt(pub_year), id]);
+        await pool.query(query);
+        res.status(200).send('Form updated');
+    } catch (err) {
+        console.log(err);
+        res.status(400).send(err);
+    }
+}
+
+function getBooks(req, res) {
+    pool.connect(function (err, client, done) {
+        if (err) {
+            console.log("Can not connect to the DB" + err);
+        }
+        client.query('SELECT * FROM public.books WHERE deletedAt IS NULL', function (err, result) {
+            done();
+            if (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }
+            let obj = result.rows;
+            res.status(200).send(obj);
+        })
+    })
+}
+
+async function insertBook(req, res) {
+    console.log('booooooooook')
+    const { title, author, publisher, gender, pub_year} = req.body;
+
+        const query = {
+            text: 'INSERT INTO public.books(title, author, publisher, gender, pub_year) VALUES($1, $2, $3, $4, $5)',
+            values: [title, author, publisher, gender, pub_year]
+        };
+        try {
+            await pool.query(query);
+            res.status(200).send('Form inserted');
+        } catch (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+}
+
+async function deleteBook(req, res) {
+    console.log('delete aqui')
+    const { id} = req.body;
+    console.log(id)
+    const query = {
+        text: 'UPDATE public.books SET deletedAt = CURRENT_TIMESTAMP WHERE id = $1',
+        values: [parseInt(id)]
+    };
+    try {
+        await pool.query(query);
+        res.status(200).send('Form logical deleted');
+    } catch (err) {
+        console.log(err);
+        res.status(400).send(err);
+    }
+}
+
+async function upload(name, data, res) {
+        const query = {
+            text: 'INSERT INTO public.img(name, img) VALUES($1, $2)',
+            values: [name, data]
+        };
+        try {
+            await pool.query(query);
+            res.status(200).send('Form inserted');
+        } catch (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+}
+
+async function getImage(id, res) {
+    const query = {
+        text: 'SELECT * FROM public.img WHERE id = $1',
+        values: [id]
+    };
+    try {
+        const result = await pool.query(query);
+        res.status(200).send(result.rows[0].img);
+    } catch (err) { 
+        console.log(err);
+        res.status(400).send(err);
+    }
+}
 module.exports = {
     getCustomers,
+    getBooks,
+    upload,
+    getImage,
     insertCustomer,
     updateCustomer,
+    updateBook,
     deleteCustomer,
+    insertBook,
+    deleteBook,
     logout,
     register,
     login
